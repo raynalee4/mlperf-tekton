@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: image-classification-pipeline-run
+spec:
+  serviceAccount: mlperf
+  pipelineRef:
+    name: image-classification
+  resources:
+  - name: repo
+    resourceRef:
+      name: ic-repo
+  - name: build-image
+    resourceRef:
+      name: ic-build-image
