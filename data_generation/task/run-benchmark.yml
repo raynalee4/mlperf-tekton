@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: run-benchmark
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: run
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/data_generation/fractal_graph_expansions
+      securityContext:
+        privileged: true
+      command: ["/bin/sh", "./run.sh"]
