@@ -7,9 +7,7 @@ spec:
   type: git
   params:
     - name: url
-      value: https://github.com/raynalee4/mlperf-training.git #https://github.com/AICoE/mlperf-training.git
-    - name: revision
-      value: image-classification-2
+      value: https://github.com/AICoE/mlperf-training.git
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
