@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: sa-run
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: run
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/sentiment_analysis/paddle
+      resources:
+        limits:
+          memory: "8Gi"
+          cpu: "8"
+        requests:
+          memory: "4Gi"
+          cpu: "4"
+      securityContext:
+        privileged: true
+      command: ["/bin/sh", "./run_and_time.sh", "123456"]
