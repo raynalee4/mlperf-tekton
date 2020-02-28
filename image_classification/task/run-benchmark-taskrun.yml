@@ -6,7 +6,7 @@ metadata:
 spec:
   taskRef:
     name: ic-run
-  serviceAccount: image-classification
+  serviceAccount: mlperf
   inputs:
     resources:
       - name: build-image
