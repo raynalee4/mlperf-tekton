@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: recommendation-pipeline-run
+spec:
+  serviceAccountName: mlperf
+  pipelineRef:
+    name: recommendation
+  timeout: "0"
+  resources:
+  - name: repo
+    resourceRef:
+      name: rec-repo
+  - name: build-image
+    resourceRef:
+      name: rec-build-image
+  podTemplate:
+    volumes:
+    - name: rec-dataset-volume
+      persistentVolumeClaim:
+        claimName: rec-dataset-pvc
+    - name: rec-runtime-volume
+      persistentVolumeClaim:
+        claimName: rec-runtime-pvc

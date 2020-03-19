@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: rec-run
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: run
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/mlperf-training/recommendation/pytorch
+      resources:
+        limits:
+          memory: "16Gi"
+          cpu: "16"
+        requests:
+          memory: "12Gi"
+          cpu: "12"
+      volumeMounts:
+        - name: rec-dataset-volume
+          mountPath: /data
+      securityContext:
+        privileged: true
+      #command: ["ls", "/data/ml-20mx16x32"]
+      command: ["/bin/sh", "./run_and_time.sh"]

@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: rec-taskrun
+  namespace: mlperf
+spec:
+  taskRef:
+    name: rec-run
+  serviceAccount: mlperf
+  inputs:
+    resources:
+      - name: build-image
+        resourceRef:
+          name: rec-build-image

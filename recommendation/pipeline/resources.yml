@@ -1,0 +1,23 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: rec-repo
+spec:
+  type: git
+  params:
+    - name: url
+      value: https://github.com/raynalee4/mlperf-training.git
+    - name: revision
+      value: recommendation
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: rec-build-image
+spec:
+  type: image
+  params:
+    - name: url
+      value: docker-registry.default.svc:5000/mlperf/recommendation:latest
+---

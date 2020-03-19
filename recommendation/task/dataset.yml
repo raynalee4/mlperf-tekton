@@ -1,0 +1,84 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: rec-dataset
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  outputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: copy
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/mlperf-training/recommendation
+      volumeMounts:
+        - name: rec-dataset-volume
+          mountPath: /data
+      securityContext:
+        privileged: true
+      command: ["cp", "download_dataset.sh", "verify_dataset.sh", "/data"]
+
+    - name: download
+      image: $(inputs.resources.image.url)
+      workingDir: /data
+      resources:
+        limits:
+          memory: "20Gi"
+          nvidia.com/gpu: 1
+        requests:
+          memory: "15Gi"
+          nvidia.com/gpu: 1
+      volumeMounts:
+        - name: rec-dataset-volume
+          mountPath: /data
+      securityContext:
+        privileged: true
+      command: ["/bin/bash", "./download_dataset.sh"]
+
+    - name: generate
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/mlperf-training/data_generation/fractal_graph_expansions
+      volumeMounts:
+        - name: rec-dataset-volume
+          mountPath: /data
+      securityContext:
+        privileged: true
+      command: ["/bin/bash", "./data_gen.sh", "data=/data"]
+
+    - name: convert
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/mlperf-training/recommendation
+      resources:
+        limits:
+          memory: "250Gi"
+          nvidia.com/gpu: 2
+        requests:
+          memory: "240Gi"
+          nvidia.com/gpu: 2
+      volumeMounts:
+        - name: rec-dataset-volume
+          mountPath: /data
+      securityContext:
+        privileged: true
+      command: ["/bin/bash", "./convert_dataset.sh"]
+
+    - name: verify
+      image: $(inputs.resources.image.url)
+      workingDir: /data
+      resources:
+        limits:
+          memory: "20Gi"
+          nvidia.com/gpu: 1
+        requests:
+          memory: "15Gi"
+          nvidia.com/gpu: 1
+      volumeMounts:
+        - name: rec-dataset-volume
+          mountPath: /data
+      securityContext:
+        privileged: true
+      command: ["/bin/sh", "./verify_dataset.sh"]
