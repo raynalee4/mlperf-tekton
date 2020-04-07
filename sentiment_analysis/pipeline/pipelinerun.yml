@@ -13,8 +13,3 @@ spec:
   - name: sa-build-image
     resourceRef:
       name: sa-build-image
-  podTemplate:
-    volumes:
-    - name: sa-config-volume
-      configMap:
-        name: sa-config
