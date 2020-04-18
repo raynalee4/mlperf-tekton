@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: speech-recognition-pipeline-run
+spec:
+  serviceAccount: mlperf
+  pipelineRef:
+    name: speech-recognition
+  resources:
+  - name: repo
+    resourceRef:
+      name: sr-repo
+  - name: build-image
+    resourceRef:
+      name: sr-build-image

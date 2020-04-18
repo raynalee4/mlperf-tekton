@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: sr-run
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: run
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/speech_recognition/tensorflow
+      resources:
+        limits:
+          memory: "8Gi"
+          cpu: "8"
+        requests:
+          memory: "6Gi"
+          cpu: "6"
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: od-dataset-volume
+          mountPath: /mlperf/speech_recognition/data/LibriSpeech_dataset/
+      command: ["/bin/sh", "./run_and_time.sh"]

@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: sr-dataset
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  outputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: download
+      image: $(inputs.resources.image.url)
+      workingDir: /mlperf/speech_recognition
+      resources:
+        limits:
+          memory: "8Gi"
+          cpu: "8"
+        requests:
+          memory: "6Gi"
+          cpu: "6"
+      volumeMounts:
+        - name: od-dataset-volume
+          mountPath: /mlperf/object_detection/data/LibriSpeech_dataset/
+      securityContext:
+        privileged: true
+      command: ["/bin/sh", "./download_dataset.sh"]
