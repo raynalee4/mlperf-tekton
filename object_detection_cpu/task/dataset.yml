@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: odc-dataset
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  outputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: download
+      image: $(inputs.resources.image.url)
+      workingDir: /intel/models/benchmarks/object_detection/tensorflow/ssd-resnet34
+      resources:
+        limits:
+          memory: "8Gi"
+          cpu: "8"
+        requests:
+          memory: "6Gi"
+          cpu: "6"
+      volumeMounts:
+        - name: odc-dataset-volume
+          mountPath: /intel/coco
+      securityContext:
+        privileged: true
+      command: ["/bin/sh", "./download_dataset.sh"]
+
+    - name: convert
+      image: $(inputs.resources.image.url)
+      workingDir: /intel/models/benchmarks/object_detection/tensorflow/ssd-resnet34
+      resources:
+        limits:
+          memory: "8Gi"
+          cpu: "8"
+        requests:
+          memory: "6Gi"
+          cpu: "6"
+      volumeMounts:
+        - name: odc-dataset-volume
+          mountPath: /intel/coco
+      securityContext:
+        privileged: true
+      command: ["/bin/sh", "./convert_dataset.sh"]

@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: object-detection-cpu
+spec:
+  resources:
+    - name: repo
+      type: git
+    - name: build-image
+      type: image 
+  tasks:
+    - name: build
+      taskRef:
+        name: odc-buildah
+        kind: Task
+      resources:
+        inputs:
+          - name: source
+            resource: repo
+        outputs:
+          - name: image
+            resource: build-image
+    # - name: dataset
+    #   taskRef:
+    #     name: odc-dataset
+    #     kind: Task
+    #   resources:
+    #     inputs:
+    #       - name: image
+    #         resource: build-image
+    #     outputs:
+    #       - name: image
+    #         resource: build-image
+      # runAfter:
+      #   - build
+    - name: run
+      taskRef:
+        name: odc-run
+        kind: Task
+      resources:
+        inputs:
+          - name: image
+            resource: build-image
+      runAfter:
+        - build

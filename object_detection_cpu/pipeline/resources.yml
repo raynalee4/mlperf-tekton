@@ -1,0 +1,23 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: odc-repo
+spec:
+  type: git
+  params:
+    - name: url
+      value: https://github.com/raynalee4/models.git
+    - name: revision
+      value: object-detection
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: odc-build-image
+spec:
+  type: image
+  params:
+    - name: url
+      value: docker-registry.default.svc:5000/mlperf/object-detection-cpu
+---

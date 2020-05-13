@@ -1,0 +1,86 @@
+# ---
+# apiVersion: image.openshift.io/v1
+# kind: ImageStream
+# metadata:
+#   name: test-bc-sample
+# spec:
+#   lookupPolicy:
+#     local: false
+# ---
+# kind: "BuildConfig"
+# apiVersion: "v1"
+# metadata:
+#   name: "test-sample-build" 
+# spec:
+#   source: 
+#     type: "Git"
+#     git:
+#       uri: "https://github.com/sub-mod/empty-repo"
+#     dockerfile: "FROM centos:7\n USER 0\n RUN yum install -y centos-release-scl && yum install devtoolset-7 rh-python36 -y \n USER example"
+#   strategy: 
+#     type: "Docker"
+#     dockerStrategy:
+#       dockerfilePath: Dockerfile
+#   output: 
+#     to:
+#       kind: "ImageStreamTag"
+#       name: "test-bc-sample:latest"
+
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: object-detection
+    component: mlperf
+  name: object-detection-cpu
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: "object-detection-cpu:${IMAGE_STREAM_TAG}"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  runPolicy: Serial
+  source:
+    git:
+      ref: "object-detection"
+      uri: "https://github.com/raynalee4/models"
+    type: Git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: benchmarks/object_detection/tensorflow/ssd-resnet34/Dockerfile
+      noCache: false
+    env:
+      - name: ENABLE_PIPENV
+        value: "1"
+      - name: UPGRADE_PIP_TO_LATEST
+        value: ""
+    type: Docker
+  triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: "Generic"
+      generic:
+        secretReference:
+          name: generic-webhook-secret
+parameters:
+  - description: "Git repository for Thoth's Nepthys"
+    displayName: "Thoth Nepthys git repository"
+    name: GITHUB_URL
+    required: true
+    value: "https://github.com/raynalee4/models"
+  - description: "Git repository for Thoth's Nepthys Job"
+    displayName: "Thoth Nepyths git reference"
+    name: GITHUB_REF
+    required: true
+    value: object-detection
+  - description: "Tag of the output ImageStream the resulting container image should go to"
+    displayName: "ImageStream Tag"
+    name: IMAGE_STREAM_TAG
+    required: true
+    value: latest

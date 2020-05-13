@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: odc-run
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: run
+      image: $(inputs.resources.image.url)
+      workingDir: /intel/models/benchmarks/object_detection/tensorflow/ssd-resnet34
+      volumeMounts:
+        - name: odc-dataset-volume
+          mountPath: /intel/coco
+        - name: odc-runtime-volume
+          mountPath: /dev/shm
+      securityContext:
+        privileged: true
+      command: ["/bin/sh", "./run_and_time.sh"]
+   
