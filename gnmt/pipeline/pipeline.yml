@@ -1,0 +1,53 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: gnmt
+spec:
+  resources:
+    - name: gnmt-repo
+      type: git
+    - name: gnmt-build-image
+      type: image
+  params:
+    - name: num_gpus
+      type: string
+      description: number of gpus to use
+      default: "4"
+  tasks:
+    - name: build
+      taskRef:
+        name: gnmt-buildah
+        kind: Task
+      resources:
+        inputs:
+          - name: source
+            resource: gnmt-repo
+        outputs:
+          - name: image
+            resource: gnmt-build-image
+    - name: dataset
+      taskRef:
+        name: gnmt-dataset
+        kind: Task
+      resources:
+        inputs:
+          - name: image
+            resource: gnmt-build-image
+        outputs:
+          - name: image
+            resource: gnmt-build-image
+      runAfter:
+        - build
+    - name: run
+      taskRef:
+        name: gnmt-run
+        kind: Task
+      resources:
+        inputs:
+          - name: image
+            resource: gnmt-build-image
+      params:
+        - name: num_gpus
+          value: $(params.num_gpus)
+      runAfter:
+        - dataset

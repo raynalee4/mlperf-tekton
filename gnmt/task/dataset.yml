@@ -1,0 +1,57 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: gnmt-dataset
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+  outputs:
+    resources:
+    - name: image
+      type: image
+  steps:
+    - name: download
+      image: $(inputs.resources.image.url)
+      workingDir: /rnn_translator
+      resources:
+        limits:
+          memory: "20Gi"
+          nvidia.com/gpu: 1
+        requests:
+          memory: "15Gi"
+          nvidia.com/gpu: 1
+      volumeMounts:
+        - name: gnmt-dataset-volume
+          mountPath: /output_dir
+      securityContext:
+        privileged: true
+      command: ["/bin/sh"]
+      args:
+        - '-c'
+        - |
+          source scl_source enable devtoolset-7 rh-python36
+          ./download_dataset.sh
+
+    - name: verify
+      image: $(inputs.resources.image.url)
+      workingDir: /rnn_translator
+      resources:
+        limits:
+          memory: "20Gi"
+          nvidia.com/gpu: 1
+        requests:
+          memory: "15Gi"
+          nvidia.com/gpu: 1
+      volumeMounts:
+        - name: gnmt-dataset-volume
+          mountPath: /output_dir
+      securityContext:
+        privileged: true
+      command: ["/bin/sh"]
+      args:
+        - '-c'
+        - |
+          source scl_source enable devtoolset-7 rh-python36
+          ./verify_dataset.sh

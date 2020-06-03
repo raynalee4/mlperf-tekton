@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: gnmt-run
+spec:
+  inputs:
+    resources:
+    - name: image
+      type: image
+    params:
+    - name: num_gpus
+      type: string
+  steps:
+    - name: run
+      image: $(inputs.resources.image.url)
+      workingDir: /rnn_translator/pytorch
+      resources:
+        limits:
+          memory: "20Gi"
+          nvidia.com/gpu: 1
+        requests:
+          memory: "15Gi"
+          nvidia.com/gpu: 1
+      volumeMounts:
+        - name: gnmt-dataset-volume
+          mountPath: /output_dir
+        - name: gnmt-runtime-volume
+          mountPath: /results
+      securityContext:
+        privileged: true
+      command: ["/bin/sh"]
+      args:
+        - '-c'
+        - |
+          source scl_source enable devtoolset-7 rh-python36
+          DATADIR=/output_dir/data LOGDIR=/output_dir PULL=0 DGXSYSTEM=DGX1 BIND_LAUNCH=0 ./run_and_time.sh
+

@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: gnmt-taskrun
+  namespace: mlperf
+spec:
+  taskRef:
+    name: gnmt-run
+  serviceAccountName: mlperf
+  inputs:
+    resources:
+      - name: image
+        resourceRef:
+          name: gnmt-build-image
+    params:
+    - name: num_gpus
+      value: "4"
+  podTemplate:
+    volumes:
+    - name: gnmt-dataset-volume
+      persistentVolumeClaim:
+        claimName: gnmt-dataset-pvc
+    - name: gnmt-runtime-volume
+      emptyDir:
+        medium: Memory

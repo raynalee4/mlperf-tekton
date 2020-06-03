@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: gnmt-pipeline-run
+spec:
+  serviceAccountName: mlperf
+  pipelineRef:
+    name: gnmt
+  timeout: "0"
+  resources:
+  - name: gnmt-repo
+    resourceRef:
+      name: gnmt-repo
+  - name: gnmt-build-image
+    resourceRef:
+      name: gnmt-build-image
+  podTemplate:
+    volumes:
+    - name: gnmt-dataset-volume
+      persistentVolumeClaim:
+        claimName: gnmt-dataset-pvc
+    - name: gnmt-runtime-volume
+      emptyDir:
+        medium: Memory
+  params:
+  - name: num_gpus
+    value: "4"
